@@ -1,0 +1,113 @@
+version: "3.9"
+
+services:
+  nginx:
+    image: nginx:1.21-alpine
+    ports:
+      - '8080:80'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - user-api
+      - newsletter-api
+      - mailing-api
+
+  user-api:
+    build:
+      context: .
+      dockerfile: ./cmd/user-api/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - JWT_SECRET=$JWT_SECRET
+      - POSTGRESQL_HOST=db
+      - POSTGRESQL_PORT=5432
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASSWORD
+      - POSTGRESQL_DBNAME=newsletter_app
+      - POSTGRESQL_SSLMODE=disable
+    depends_on:
+      - db
+
+  newsletter-api:
+    build:
+      context: .
+      dockerfile: ./cmd/newsletter-api/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - JWT_SECRET=$JWT_SECRET
+      - FIREBASE_TYPE=$FIREBASE_TYPE
+      - FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
+      - FIREBASE_PRIVATE_KEY_ID=$FIREBASE_PRIVATE_KEY_ID
+      - FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY
+      - FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL
+      - FIREBASE_CLIENT_ID=$FIREBASE_CLIENT_ID
+      - FIREBASE_AUTH_URI=$FIREBASE_AUTH_URI
+      - FIREBASE_TOKEN_URI=$FIREBASE_TOKEN_URI
+      - FIREBASE_AUTH_PROVIDER_X509_CERT_URL=$FIREBASE_AUTH_PROVIDER_X509_CERT_URL
+      - FIREBASE_CLIENT_X509_CERT_URL=$FIREBASE_CLIENT_X509_CERT_URL
+      - FIREBASE_UNIVERSE_DOMAIN=$FIREBASE_UNIVERSE_DOMAIN
+      - SALT=$SALT
+      - ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
+      - SENDGRID_API_KEY=$SENDGRID_API_KEY
+      - POSTGRESQL_HOST=db
+      - POSTGRESQL_PORT=5432
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASSWORD
+      - POSTGRESQL_DBNAME=newsletter_app
+      - POSTGRESQL_SSLMODE=disable
+    depends_on:
+      - db
+
+  mailing-api:
+    build:
+      context: .
+      dockerfile: ./cmd/mailing-api/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - JWT_SECRET=$JWT_SECRET
+      - FIREBASE_TYPE=$FIREBASE_TYPE
+      - FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
+      - FIREBASE_PRIVATE_KEY_ID=$FIREBASE_PRIVATE_KEY_ID
+      - FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY
+      - FIREBASE_CLIENT_EMAIL=$FIREBASE_CLIENT_EMAIL
+      - FIREBASE_CLIENT_ID=$FIREBASE_CLIENT_ID
+      - FIREBASE_AUTH_URI=$FIREBASE_AUTH_URI
+      - FIREBASE_TOKEN_URI=$FIREBASE_TOKEN_URI
+      - FIREBASE_AUTH_PROVIDER_X509_CERT_URL=$FIREBASE_AUTH_PROVIDER_X509_CERT_URL
+      - FIREBASE_CLIENT_X509_CERT_URL=$FIREBASE_CLIENT_X509_CERT_URL
+      - FIREBASE_UNIVERSE_DOMAIN=$FIREBASE_UNIVERSE_DOMAIN
+      - SALT=$SALT
+      - ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
+      - SENDGRID_API_KEY=$SENDGRID_API_KEY
+      - POSTGRESQL_HOST=db
+      - POSTGRESQL_PORT=5432
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASSWORD
+      - POSTGRESQL_DBNAME=newsletter_app
+      - POSTGRESQL_SSLMODE=disable
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASSWORD
+      - POSTGRES_DB=newsletter_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - 8085:8080
+    depends_on:
+      - db
+
+volumes:
+  postgres-data:

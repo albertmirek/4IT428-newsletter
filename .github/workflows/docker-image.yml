@@ -1,0 +1,31 @@
+name: CI - Docker Image
+
+on:
+  push:
+    branches: ["am-infra" ]
+
+jobs:
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build and push user-api
+      uses: actions/checkout@v3
+      with:
+        context: ./cmd/user-api
+        push: true
+        tags: ghcr.io/${{ github.repository }}/user-api:latest
+    
+    - name: Build and push newsletter-api
+      uses: actions/checkout@v3
+      with:
+        context: ./cmd/newsletter-api
+        push: true
+        tags: ghcr.io/${{ github.repository }}/newsletter-api:latest
+        
+    - name: Build and push mailing-api
+      uses: actions/checkout@v3
+      with:
+        context: ./cmd/mailing-api
+        push: true
+        tags: ghcr.io/${{ github.repository }}/mailing-api:latest

@@ -1,0 +1,18 @@
+# .air.toml
+
+# Working directory
+root = "."
+
+# Files to watch for changes
+watch = [
+  "./**/*.go",
+]
+
+# Binary output directory
+bin = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ./cmd/mailing-api/main.go"
+
+# Command to run the project
+command = "./tmp/main"
